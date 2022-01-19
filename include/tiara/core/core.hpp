@@ -364,7 +364,17 @@ namespace tiara::core {
             }
         }
 
-        auto filtered_range = std::ranges::remove_if(physical_device_pairs, device_filter_func);
+        auto filtered_range = std::ranges::subrange{
+            std::ranges::begin(physical_device_pairs),
+            std::ranges::begin(
+                std::ranges::remove_if(
+                    physical_device_pairs,
+                    [&device_filter_func](auto& physical_device_pair){
+                        return !device_filter_func(physical_device_pair); 
+                    }
+                )
+            )
+        };
         std::ranges::sort(filtered_range, device_compare_func);
 
         std::vector<vk::raii::PhysicalDevice> result_devices;

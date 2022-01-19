@@ -47,29 +47,13 @@ class ManagedHandler: virtual public ParentHandler, private ManagedHandlerBase<E
 
     void unsubscribe(const std::shared_ptr<AsyncDispatcher<Ev, Executor>>& dispatcher) {
         dispatcher->stop_dispatch(static_cast<ParentHandler&>(*this));
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(
-                Base::_weak_subscribed_dispatchers, 
-                [&dispatcher](const auto& _weak_dispatcher) {
-                    auto _dispatcher = _weak_dispatcher.lock();
-                    return (!_dispatcher) || (_dispatcher == dispatcher);
-                }
-            );
-            Base::_weak_subscribed_dispatchers.erase(first, last);
-        #else
-            const auto last = std::remove_if(
-                Base::_weak_subscribed_dispatchers.begin(), 
-                Base::_weak_subscribed_dispatchers.end(), 
-                [&dispatcher](const auto& _weak_dispatcher) {
-                    auto _dispatcher = _weak_dispatcher.lock();
-                    return (!_dispatcher) || (_dispatcher == dispatcher);
-                }
-            );
-            Base::_weak_subscribed_dispatchers.erase(
-                last,
-                Base::_weak_subscribed_dispatchers.end()
-            );
-        #endif
+        core::utils::remove_erase_if(
+            Base::_weak_subscribed_dispatchers,
+            [&dispatcher](const auto& _weak_dispatcher) {
+                auto _dispatcher = _weak_dispatcher.lock();
+                return (!_dispatcher) || (_dispatcher == dispatcher);
+            }
+        );
     }
 
     template <std::enable_if_t<std::derived_from<ParentHandler, Handler<Ev>>, bool> = true>
@@ -81,29 +65,13 @@ class ManagedHandler: virtual public ParentHandler, private ManagedHandlerBase<E
     template <std::enable_if_t<std::derived_from<ParentHandler, Handler<Ev>>, bool> = true>
     void unsubscribe(const std::shared_ptr<Dispatcher<Ev>>& dispatcher) {
         dispatcher->stop_dispatch(static_cast<ParentHandler&>(*this));
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(
-                Base::_weak_subscribed_sync_dispatchers, 
-                [&dispatcher](const auto& _weak_dispatcher) {
-                    auto _dispatcher = _weak_dispatcher.lock();
-                    return (!_dispatcher) || (_dispatcher == dispatcher);
-                }
-            );
-            Base::_weak_subscribed_sync_dispatchers.erase(first, last);
-        #else
-            const auto last = std::remove_if(
-                Base::_weak_subscribed_sync_dispatchers.begin(), 
-                Base::_weak_subscribed_sync_dispatchers.end(), 
-                [&dispatcher](const auto& _weak_dispatcher) {
-                    auto _dispatcher = _weak_dispatcher.lock();
-                    return (!_dispatcher) || (_dispatcher == dispatcher);
-                }
-            );
-            Base::_weak_subscribed_sync_dispatchers.erase(
-                last,
-                Base::_weak_subscribed_sync_dispatchers.end()
-            );
-        #endif
+        core::utils::remove_erase_if(
+            Base::_weak_subscribed_sync_dispatchers,
+            [&dispatcher](const auto& _weak_dispatcher) {
+                auto _dispatcher = _weak_dispatcher.lock();
+                return (!_dispatcher) || (_dispatcher == dispatcher);
+            }
+        );
     }
 };
 }

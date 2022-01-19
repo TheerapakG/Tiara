@@ -112,25 +112,13 @@ class MonitorEventDispatcher
         _monitor_connected_handlers.emplace_back(h);
     }
     static void stop_dispatch(core::event::Handler<events::MonitorConnectedEvent>& h) {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_monitor_connected_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _monitor_connected_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_monitor_connected_handlers.begin(), _monitor_connected_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _monitor_connected_handlers.erase(last, _monitor_connected_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_monitor_connected_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     static void start_dispatch(core::event::Handler<events::MonitorDisconnectedEvent>& h) {
         _monitor_disconnected_handlers.emplace_back(h);
     }
     static void stop_dispatch(core::event::Handler<events::MonitorDisconnectedEvent>& h) {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_monitor_disconnected_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _monitor_disconnected_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_monitor_disconnected_handlers.begin(), _monitor_disconnected_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _monitor_disconnected_handlers.erase(last, _monitor_disconnected_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_monitor_disconnected_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
 
     private:

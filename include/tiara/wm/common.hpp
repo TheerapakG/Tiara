@@ -104,11 +104,14 @@ namespace tiara::wm {
         if (!present_queue) {
             if (preferred_physical_device) present_queue = select_queue_for_surface(preferred_physical_device, surface);
             else {
+                std::vector<std::string> required_extension_names{vulkan_device_extensions};
+                std::ranges::sort(required_extension_names);
+
                 for (
                     auto&& physical_device: 
                     core::find_devices(
                         core::utils::preds::combinators<const core::DevicePropertiesPair&>::make_and_(
-                            [](const core::DevicePropertiesPair& physical_device_properties) {
+                            [&required_extension_names](const core::DevicePropertiesPair& physical_device_properties) {
                                 auto extension_properties_s = physical_device_properties.first.enumerateDeviceExtensionProperties();
                                 std::vector<std::string> extension_names;
                                 extension_names.reserve(extension_properties_s.size());
@@ -122,9 +125,6 @@ namespace tiara::wm {
                                 );
 
                                 std::ranges::sort(extension_names);
-
-                                std::vector<std::string> required_extension_names{vulkan_device_extensions};
-                                std::ranges::sort(required_extension_names);
 
                                 return std::ranges::includes(extension_names, required_extension_names);
                             },

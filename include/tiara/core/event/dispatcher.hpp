@@ -2,7 +2,8 @@
 #define TIARA_CORE_EVENT_DISPATCHER
 
 #include "tiara/core/event/handler.hpp"
-#include "tiara/core/stdincludes.hpp"
+#include "tiara/core/utilities/predicate_combinators.hpp"
+#include "tiara/core/utilities/remove_erase.hpp"
 
 namespace tiara::core::event {
     template <typename T, typename Hdlr, typename Ev, typename Executor>
@@ -37,13 +38,7 @@ namespace tiara::core::event {
         }
         void stop_dispatch(std::shared_ptr<Hdlr> h) {
             stop_dispatch(*h);
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove(_keep_shared_alive, h);
-            _keep_shared_alive.erase(first, last);
-        #else
-            const auto last = std::remove_if(_keep_shared_alive.begin(), _keep_shared_alive.end(), h);
-            _keep_shared_alive.erase(last, _keep_shared_alive.end());
-        #endif
+            utils::remove_erase(_keep_shared_alive, h);
         }
 
         private:

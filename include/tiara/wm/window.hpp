@@ -153,109 +153,55 @@ class Window:
         _window_pos_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowPosEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_pos_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_pos_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_pos_handlers.begin(), _window_pos_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_pos_handlers.erase(last, _window_pos_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_pos_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowSizeEvent>& h) final {
         _window_size_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowSizeEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_size_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_size_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_size_handlers.begin(), _window_size_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_size_handlers.erase(last, _window_size_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_size_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowCloseEvent>& h) final {
         _window_close_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowCloseEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_close_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_close_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_close_handlers.begin(), _window_close_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_close_handlers.erase(last, _window_close_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_close_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowRefreshEvent>& h) final {
         _window_refresh_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowRefreshEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_refresh_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_refresh_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_refresh_handlers.begin(), _window_refresh_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_refresh_handlers.erase(last, _window_refresh_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_refresh_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowFocusEvent>& h) final {
         _window_focus_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowFocusEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_focus_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_focus_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_focus_handlers.begin(), _window_focus_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_focus_handlers.erase(last, _window_focus_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_focus_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowMinimizeEvent>& h) final {
         _window_minimize_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowMinimizeEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_minimize_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_minimize_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_minimize_handlers.begin(), _window_minimize_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_minimize_handlers.erase(last, _window_minimize_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_minimize_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowMaximizeEvent>& h) final {
         _window_maximize_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowMaximizeEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_maximize_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_maximize_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_maximize_handlers.begin(), _window_maximize_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_maximize_handlers.erase(last, _window_maximize_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_maximize_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowFramebufferSizeEvent>& h) final {
         _window_framebuffer_size_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowFramebufferSizeEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_framebuffer_size_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_framebuffer_size_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_framebuffer_size_handlers.begin(), _window_framebuffer_size_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_framebuffer_size_handlers.erase(last, _window_framebuffer_size_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_framebuffer_size_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<events::WindowScaleEvent>& h) final {
         _window_scale_handlers.emplace_back(h);
     }
     void stop_dispatch(core::event::Handler<events::WindowScaleEvent>& h) final {
-        #if TIARA_DETAILS_USE_STD_RANGES_20
-            const auto [first, last] = std::ranges::remove_if(_window_scale_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_scale_handlers.erase(first, last);
-        #else
-            const auto last = std::remove_if(_window_scale_handlers.begin(), _window_scale_handlers.end(), [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-            _window_scale_handlers.erase(last, _window_scale_handlers.end());
-        #endif
+        core::utils::remove_erase_if(_window_scale_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void start_dispatch(core::event::Handler<common::events::DrawEvent>& h) final {
         _window_draw_handler.emplace(h);

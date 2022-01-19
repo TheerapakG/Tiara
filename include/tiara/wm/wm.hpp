@@ -21,9 +21,7 @@ namespace tiara::wm {
             }
             skia_vulkan_context.reset();
             skia_vulkan_extensions.reset();
-            for (auto& [_, semaphore_vec]: detail::_undeleted_semaphores) {
-                semaphore_vec.clear();
-            }
+            detail::_undeleted_semaphores.clear();
             present_queue.reset();
             preferred_physical_device = nullptr;
             MonitorEventDispatcher::deinit();

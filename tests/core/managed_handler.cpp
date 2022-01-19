@@ -34,8 +34,7 @@ struct EventDispatcher: tiara::core::event::Dispatcher<Event> {
         } else {
             spdlog::info("unregistering a handler!");
         }
-        const auto [first, last] = std::ranges::remove_if(_event_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
-        _event_handlers.erase(first, last);
+        tiara::core::utils::remove_erase_if(_event_handlers, [&h](const auto& ref_wrap) { return ref_wrap.get() == h; });
     }
     void emit() {
         spdlog::info("emitting!");

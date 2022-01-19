@@ -21,7 +21,7 @@ int main() {
     auto window_1_draw_handler = tiara::core::event::make_function_handler<tiara::common::events::DrawEvent>(
         [](const tiara::common::events::DrawEvent& event){
             event.canvas->clear(SK_ColorBLACK);
-            event.canvas->drawString("tiara engine test window 1", 0, 64, {nullptr, 64}, SkPaint{SkColor4f::FromColor(SK_ColorWHITE)});
+            // event.canvas->drawString("tiara engine test window 1", 0, 64, {nullptr, 64}, SkPaint{SkColor4f::FromColor(SK_ColorWHITE)});
             return true;
         }
     );
@@ -32,7 +32,7 @@ int main() {
     auto window_2_draw_handler = tiara::core::event::make_function_handler<tiara::common::events::DrawEvent>(
         [](const tiara::common::events::DrawEvent& event){
             event.canvas->clear(SK_ColorBLACK);
-            event.canvas->drawString("tiara engine test window 2", 0, 64, {nullptr, 64}, SkPaint{SkColor4f::FromColor(SK_ColorWHITE)});
+            // event.canvas->drawString("tiara engine test window 2", 0, 64, {nullptr, 64}, SkPaint{SkColor4f::FromColor(SK_ColorWHITE)});
             return true;
         }
     );
