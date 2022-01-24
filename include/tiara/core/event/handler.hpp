@@ -67,7 +67,7 @@ namespace tiara::core::event {
     };
 
     template <std::derived_from<Event> Ev, std::convertible_to<std::function<typename Ev::RetType(const Ev& event)>> F>
-    FunctionHandler<Ev, F> make_function_handler(F&& f) {
+    [[nodiscard]] FunctionHandler<Ev, F> make_function_handler(F&& f) {
         return { std::forward<F>(f) };
     }
 

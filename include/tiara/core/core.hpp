@@ -3,7 +3,7 @@
 
 #include "tiara/core/event/event.hpp"
 #include "tiara/core/extension/extension.hpp"
-#include "tiara/core/utilities/concept_invocable_r.hpp"
+#include "tiara/core/utilities/concept_invocable.hpp"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 

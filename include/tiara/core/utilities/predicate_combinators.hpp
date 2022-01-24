@@ -2,7 +2,7 @@
 #define TIARA_CORE_UTILITIES_PREDICATES_COMBINATORS
 
 #include "tiara/core/stdincludes.hpp"
-#include "tiara/core/utilities/concept_invocable_r.hpp"
+#include "tiara/core/utilities/concept_invocable.hpp"
 
 #include <tuple>
 #include <utility>
