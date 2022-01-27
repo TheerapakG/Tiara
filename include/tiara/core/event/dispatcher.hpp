@@ -28,15 +28,12 @@ namespace tiara::core::event {
         virtual void start_dispatch(Handler<Ev>& h) = 0;
         virtual void stop_dispatch(Handler<Ev>& h) = 0;
     };
+}
 
-    template <std::derived_from<Event> Ev, typename InitType = size_t>
-    struct DefaultDispatcher: public Dispatcher<Ev> {
+namespace tiara::core::event::detail {
+    template <std::derived_from<Event> Ev>
+    struct DefaultDispatcherBase: public Dispatcher<Ev> {
         public:
-        DefaultDispatcher() = default;
-
-        template <typename U>
-        DefaultDispatcher(U&& init_value): _init{init_value} {}
-
         void start_dispatch(Handler<Ev>& h) override {
             _handlers.emplace_back(h);
         }
@@ -45,15 +42,16 @@ namespace tiara::core::event {
         }
 
         protected:
-        InitType dispatch(const Ev& event) {
+        template <typename InitType>
+        InitType dispatch(const Ev& event, const InitType& init) {
             _dispatch_event_to_results_vec(event);
-            return std::accumulate(std::ranges::begin(_results), std::ranges::end(_results), _init);
+            return std::accumulate(std::ranges::begin(_results), std::ranges::end(_results), init);
         }
 
-        template <std::invocable<const InitType&, const typename Ev::RetType&> Op>
-        InitType dispatch(const Ev& event, Op op) {
+        template <typename InitType, std::invocable<const InitType&, const typename Ev::RetType&> Op>
+        InitType dispatch(const Ev& event, const InitType& init, Op op) {
             _dispatch_event_to_results_vec(event);
-            return std::accumulate(std::ranges::begin(_results), std::ranges::end(_results), _init, op);
+            return std::accumulate(std::ranges::begin(_results), std::ranges::end(_results), init, op);
         }
 
         const std::vector<std::reference_wrapper<Handler<Ev>>>& handlers() const {
@@ -63,7 +61,6 @@ namespace tiara::core::event {
         private:
         std::vector<std::reference_wrapper<Handler<Ev>>> _handlers;
         std::vector<typename Ev::RetType> _results;
-        InitType _init;
 
         void _dispatch_event_to_results_vec(const Ev& event) {
             _results.clear();
@@ -79,42 +76,55 @@ namespace tiara::core::event {
         }
     };
 
-    template <std::derived_from<Event> Ev>
-    struct DelegatingDispatcher: public Dispatcher<Ev> {
-        public:
-        DelegatingDispatcher(Dispatcher<Ev>& dispatcher): _dispatcher{dispatcher} {}
-
+    template <typename DelegatingSharedDispatcher, std::derived_from<Event> Ev>
+    struct DelegatingSharedDispatcherBase: public Dispatcher<Ev> {
         void start_dispatch(Handler<Ev>& h) override {
-            _dispatcher.start_dispatch(h);
+            static_cast<DelegatingSharedDispatcher*>(this)->_dispatcher->start_dispatch(h);
         }
         void stop_dispatch(Handler<Ev>& h) override {
-            _dispatcher.stop_dispatch(h);
+            static_cast<DelegatingSharedDispatcher*>(this)->_dispatcher->stop_dispatch(h);
         }
-
-        private:
-        Dispatcher<Ev>& _dispatcher;
     };
+}
 
-    template <std::derived_from<Event> Ev>
-    struct DelegatingSharedDispatcher: public Dispatcher<Ev> {
+namespace tiara::core::event {
+    template <std::derived_from<Event>... Evs>
+    struct DefaultDispatcher: public detail::DefaultDispatcherBase<Evs>... {
         public:
-        DelegatingSharedDispatcher() = default;
-        DelegatingSharedDispatcher(std::shared_ptr<Dispatcher<Ev>> dispatcher): _dispatcher{dispatcher} {}
-
-        void start_dispatch(Handler<Ev>& h) override {
-            _dispatcher->start_dispatch(h);
-        }
-        void stop_dispatch(Handler<Ev>& h) override {
-            _dispatcher->stop_dispatch(h);
-        }
+        using detail::DefaultDispatcherBase<Evs>::start_dispatch...;
+        using detail::DefaultDispatcherBase<Evs>::stop_dispatch...;
 
         protected:
-        void set_dispatcher(std::shared_ptr<Dispatcher<Ev>> dispatcher) {
-            _dispatcher = dispatcher;
+        using detail::DefaultDispatcherBase<Evs>::dispatch...;
+
+        template <std::derived_from<Event> Ev> requires (std::same_as<Ev, Evs> || ...)
+        const std::vector<std::reference_wrapper<Handler<Ev>>>& handlers() const {
+            return detail::DefaultDispatcherBase<Ev>::handlers();
+        }
+    };
+
+    template <typename DelegatedDispatcherType, std::derived_from<Event>... Evs>
+    struct DelegatingSharedDispatcher: public detail::DelegatingSharedDispatcherBase<DelegatingSharedDispatcher<DelegatedDispatcherType, Evs...>, Evs>... {
+        public:
+        DelegatingSharedDispatcher() = default;
+        DelegatingSharedDispatcher(std::shared_ptr<DelegatedDispatcherType> dispatcher): _dispatcher{dispatcher} {}
+
+        using detail::DelegatingSharedDispatcherBase<DelegatingSharedDispatcher<DelegatedDispatcherType, Evs...>, Evs>::start_dispatch...;
+        using detail::DelegatingSharedDispatcherBase<DelegatingSharedDispatcher<DelegatedDispatcherType, Evs...>, Evs>::stop_dispatch...;
+
+        protected:
+        std::shared_ptr<DelegatedDispatcherType>& dispatcher() {
+            return _dispatcher;
+        }
+        const std::shared_ptr<DelegatedDispatcherType>& dispatcher() const {
+            return _dispatcher;
         }
 
         private:
-        std::shared_ptr<Dispatcher<Ev>> _dispatcher;
+        std::shared_ptr<DelegatedDispatcherType> _dispatcher;
+        
+        template <typename DelegatingSharedDispatcherT, std::derived_from<Event> Ev>
+        friend struct detail::DelegatingSharedDispatcherBase;
     };
 
     template <std::derived_from<Event> Ev, typename Executor, HandlerType<Ev, Executor> Hdlr, DispatcherType<Hdlr, Ev, Executor> Dispatch>

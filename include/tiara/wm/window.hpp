@@ -85,18 +85,33 @@ namespace tiara::wm {
 namespace tiara::wm::detail {
     static inline std::map<void*, std::vector<std::pair<vk::raii::Semaphore, GrBackendSemaphore>>> _undeleted_semaphores;
 class Window: 
-    public core::event::DefaultDispatcher<events::WindowPosEvent>, 
-    public core::event::DefaultDispatcher<events::WindowSizeEvent>,
-    public core::event::DefaultDispatcher<events::WindowCloseEvent>,
-    public core::event::DefaultDispatcher<events::WindowRefreshEvent>,
-    public core::event::DefaultDispatcher<events::WindowFocusEvent>,
-    public core::event::DefaultDispatcher<events::WindowMinimizeEvent>,
-    public core::event::DefaultDispatcher<events::WindowMaximizeEvent>,
-    public core::event::DefaultDispatcher<events::WindowFramebufferSizeEvent>,
-    public core::event::DefaultDispatcher<events::WindowScaleEvent>,
-    public core::event::Dispatcher<common::events::DrawEvent>
+    public core::event::DefaultDispatcher<
+        events::WindowPosEvent, 
+        events::WindowSizeEvent,
+        events::WindowCloseEvent,
+        events::WindowRefreshEvent,
+        events::WindowFocusEvent,
+        events::WindowMinimizeEvent,
+        events::WindowMaximizeEvent,
+        events::WindowFramebufferSizeEvent,
+        events::WindowScaleEvent,
+        common::events::DrawEvent
+    >
 {
     public:
+    using DefaultDispatcherT = core::event::DefaultDispatcher<
+        events::WindowPosEvent, 
+        events::WindowSizeEvent,
+        events::WindowCloseEvent,
+        events::WindowRefreshEvent,
+        events::WindowFocusEvent,
+        events::WindowMinimizeEvent,
+        events::WindowMaximizeEvent,
+        events::WindowFramebufferSizeEvent,
+        events::WindowScaleEvent,
+        common::events::DrawEvent
+    >;
+
     Window(
         core::iVec2D size,
         const std::string& title,
@@ -147,6 +162,9 @@ class Window:
     operator GLFWwindow*() {
         return _window_raw;
     }
+
+    using DefaultDispatcherT::start_dispatch;
+    using DefaultDispatcherT::stop_dispatch;
 
     void start_dispatch(core::event::Handler<common::events::DrawEvent>& h) final {
         _window_draw_handler.emplace(h);
@@ -237,47 +255,47 @@ class Window:
     static void _glfw_window_pos_callback(GLFWwindow* _window_raw_cb, int xpos, int ypos) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowPosEvent>::dispatch({{xpos, ypos}});
+        _this->DefaultDispatcherT::dispatch(events::WindowPosEvent{{xpos, ypos}}, 0);
     }
     static void _glfw_window_size_callback(GLFWwindow* _window_raw_cb, int width, int height) { 
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowSizeEvent>::dispatch({{width, height}});
+        _this->DefaultDispatcherT::dispatch(events::WindowSizeEvent{{width, height}}, 0);
     }
     static void _glfw_window_close_callback(GLFWwindow* _window_raw_cb) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowCloseEvent>::dispatch({});
+        _this->DefaultDispatcherT::dispatch(events::WindowCloseEvent{}, 0);
     }
     static void _glfw_window_refresh_callback(GLFWwindow* _window_raw_cb) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowRefreshEvent>::dispatch({});
+        _this->DefaultDispatcherT::dispatch(events::WindowRefreshEvent{}, 0);
     }
     static void _glfw_window_focus_callback(GLFWwindow* _window_raw_cb, int focused) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowFocusEvent>::dispatch({});
+        _this->DefaultDispatcherT::dispatch(events::WindowFocusEvent{}, 0);
     }
     static void _glfw_window_iconify_callback(GLFWwindow* _window_raw_cb, int iconified) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowMinimizeEvent>::dispatch({});
+        _this->DefaultDispatcherT::dispatch(events::WindowMinimizeEvent{}, 0);
     }
     static void _glfw_window_maximize_callback(GLFWwindow* _window_raw_cb, int maximized) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowMaximizeEvent>::dispatch({});
+        _this->DefaultDispatcherT::dispatch(events::WindowMaximizeEvent{}, 0);
     }
     static void _glfw_window_framebuffer_size_callback(GLFWwindow* _window_raw_cb, int width, int height) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowFramebufferSizeEvent>::dispatch({width, height});
+        _this->DefaultDispatcherT::dispatch(events::WindowFramebufferSizeEvent{width, height}, 0);
     }
     static void _glfw_window_content_scale_callback(GLFWwindow* _window_raw_cb, float xscale, float yscale) {
         Window* _this = static_cast<Window*>(glfwGetWindowUserPointer(_window_raw_cb));
         if (_this == NULL) return;
-        _this->DefaultDispatcher<events::WindowScaleEvent>::dispatch({xscale, yscale});
+        _this->DefaultDispatcherT::dispatch(events::WindowScaleEvent{xscale, yscale}, 0);
     }
 
     void _register_glfw_callbacks() {
@@ -549,16 +567,19 @@ class Window:
 
 namespace tiara::wm {
 class Window: 
-    public core::event::DelegatingSharedDispatcher<events::WindowPosEvent>, 
-    public core::event::DelegatingSharedDispatcher<events::WindowSizeEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowCloseEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowRefreshEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowFocusEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowMinimizeEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowMaximizeEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowFramebufferSizeEvent>,
-    public core::event::DelegatingSharedDispatcher<events::WindowScaleEvent>,
-    public core::event::DelegatingSharedDispatcher<common::events::DrawEvent>
+    public core::event::DelegatingSharedDispatcher<
+        detail::Window,
+        events::WindowPosEvent,
+        events::WindowSizeEvent,
+        events::WindowCloseEvent,
+        events::WindowRefreshEvent,
+        events::WindowFocusEvent,
+        events::WindowMinimizeEvent,
+        events::WindowMaximizeEvent,
+        events::WindowFramebufferSizeEvent,
+        events::WindowScaleEvent,
+        common::events::DrawEvent
+    >
 {
     public:
     Window(
@@ -570,27 +591,6 @@ class Window:
     explicit operator GLFWwindow*() {
         return static_cast<GLFWwindow*>(*_window_detail);
     }
-
-    using DelegatingSharedDispatcher<events::WindowPosEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowPosEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowSizeEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowSizeEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowCloseEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowCloseEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowRefreshEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowRefreshEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowFocusEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowFocusEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowMinimizeEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowMinimizeEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowMaximizeEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowMaximizeEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowFramebufferSizeEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowFramebufferSizeEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<events::WindowScaleEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<events::WindowScaleEvent>::stop_dispatch;
-    using DelegatingSharedDispatcher<common::events::DrawEvent>::start_dispatch;
-    using DelegatingSharedDispatcher<common::events::DrawEvent>::stop_dispatch;
 
     void draw() {
         _window_detail->draw();
@@ -652,16 +652,7 @@ Window::Window(
 ):
     _window_detail{std::make_shared<detail::Window>(size, title, monitor)}
 {
-    DelegatingSharedDispatcher<events::WindowPosEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowPosEvent>>(_window_detail)); 
-    DelegatingSharedDispatcher<events::WindowSizeEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowSizeEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowCloseEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowCloseEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowRefreshEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowRefreshEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowFocusEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowFocusEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowMinimizeEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowMinimizeEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowMaximizeEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowMaximizeEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowFramebufferSizeEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowFramebufferSizeEvent>>(_window_detail));
-    DelegatingSharedDispatcher<events::WindowScaleEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<events::WindowScaleEvent>>(_window_detail));
-    DelegatingSharedDispatcher<common::events::DrawEvent>::set_dispatcher(std::static_pointer_cast<core::event::Dispatcher<common::events::DrawEvent>>(_window_detail));
+    DelegatingSharedDispatcher::dispatcher() = _window_detail;
 }
 }
 
